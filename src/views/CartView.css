@@ -1,0 +1,72 @@
+/* Base styles */
+
+
+h1 {
+  color: white; /* Netflix-inspired red */
+  text-align: center;
+}
+p {
+  text-align: center;
+}
+.header2 {
+  align-content: center;
+  background-color: rgba(0,0,0,0.5);
+  height: 150px;
+  margin-bottom: 100px;
+}
+
+.cart-view {
+  height: 1000px;
+  margin: 0 auto;
+  padding: 20px 0;
+  display: flexbox;
+  justify-content: center;
+}
+
+.cart-items {
+  display: inline;
+  flex-wrap: wrap; /* Allows wrapping of items into multiple rows */
+  justify-content: center; /* Centers items horizontally */
+  gap: 20px; /* Adds spacing between items */
+}
+
+.cart-item {
+  width: 300px;
+  background: #1c1c1c; /* Slightly lighter black */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s;
+  text-align: center;
+  display: inline-block;
+}
+
+.cart-item:hover {
+  transform: scale(1.05);
+}
+
+.cart-item img {
+  width: 100%;
+  height: auto;
+  border-bottom: 2px solid #e50914;
+}
+
+.cart-item h1 {
+  font-size: 1.2rem;
+  margin: 10px 0;
+  color: #00aaff; /* Bright blue */
+}
+
+.cart-item button {
+  background-color: #e50914; /* Red */
+  border: none;
+  padding: 10px 20px;
+  color: white;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.cart-item button:hover {
+  background-color: #ff4040; /* Lighter red */
+}

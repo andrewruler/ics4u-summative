@@ -1,5 +1,5 @@
-import { useUserContext } from "../../../../New folder/src/contexts/UserContext";
-import Header from "../../../../New folder/src/components/Header";
+import { useUserContext } from "../contexts/UserContext";
+import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import "./SettingsView.css";

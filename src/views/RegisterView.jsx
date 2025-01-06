@@ -1,8 +1,8 @@
 import "./RegisterView.css";
 import "../components/components.css";
 import { useNavigate } from "react-router-dom";
-import Nav from "../../../../New folder/src/components/Header";
-import { useUserContext } from "../../../../New folder/src/contexts/UserContext";
+import Nav from "../components/Header";
+import { useUserContext } from "../contexts/UserContext";
 import { useState } from "react";
 
 function RegisterView() {

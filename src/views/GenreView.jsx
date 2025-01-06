@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useCartContext } from '../../../../New folder/src/contexts/CartContext';
+import { useCartContext } from '../contexts/CartContext';
 import './GenreView.css';
 
 function GenreView() {

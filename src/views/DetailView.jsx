@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useCartContext } from "../../../../New folder/src/contexts/CartContext";
+import { useCartContext } from "../contexts/CartContext";
 import "./DetailView.css";
 
 function DetailView() {

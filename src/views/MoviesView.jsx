@@ -1,8 +1,8 @@
-import Nav from "../../../../New folder/src/components/Header";
-import Footer from "../../../../New folder/src/components/Footer";
-import Genres from "../../../../New folder/src/components/Genres";
+import Nav from "../components/Header";
+import Footer from "../components/Footer";
+import Genres from "../components/Genres";
 import { Outlet } from "react-router-dom";
-import { useUserContext } from "../../../../New folder/src/contexts/UserContext";
+import { useUserContext } from "../contexts/UserContext";
 
 function MoviesView() {
   const { genreList } = useUserContext();

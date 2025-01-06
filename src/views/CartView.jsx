@@ -1,6 +1,6 @@
-import Header from '../../../../New folder/src/components/Header';
-import Footer from '../../../../New folder/src/components/Footer';
-import { useCartContext } from "../../../../New folder/src/contexts/CartContext";
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import { useCartContext } from "../contexts/CartContext";
 import "./CartView.css";
 
 function CartView() {

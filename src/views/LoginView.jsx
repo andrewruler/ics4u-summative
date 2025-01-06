@@ -1,26 +1,40 @@
 import "../components/components.css";
 import './LoginView.css';
-import { useState, useContext } from "react";
-import { useUserContext } from "../../../../New folder/src/contexts/UserContext";
+import { useState, useRef } from "react";
+import { useUserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
-import Nav from "../../../../New folder/src/components/Header";
+import Nav from "../components/Header";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from '../firebase';
 
 function LoginView() {
+  const email = useRef('');
   const navigate = useNavigate();
   const { updateUser, toggleLogin } = useUserContext();
   const [password, setPass1] = useState("");
   const [newUsername, setNewUsername] = useState("");
 
-  function handleLogIn(event) {
+  async function emailLogIn(event) {
     event.preventDefault();
-
-    if (password === "password") {
+    try {
+      const user = await signInWithEmailAndPassword(auth, newUsername, password).user;
       updateUser('firstName', newUsername);
       setNewUsername("");
       toggleLogin(true);
       navigate("/");
-    } else {
-      alert("Password is incorrect!");
+    } catch (error) {
+      console.error('Error logging in with email:', error);
+    }
+  }
+
+  async function loginByGoogle() {
+    try {
+      const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
+      navigate('/movies/all');
+      setUser(user);
+    } catch (error) {
+      console.log(error);
+      alert("Error signing in!");
     }
   }
 
@@ -33,7 +47,7 @@ function LoginView() {
       <Nav />
       <div className="signin">
         <h1 className="signintext">Welcome back! Login!</h1>
-        <form onSubmit={handleLogIn}>
+        <form onSubmit={emailLogIn}>
           <div>
             <input
               type="text"
@@ -54,6 +68,8 @@ function LoginView() {
             </button>
           </div>
         </form>
+        <button onClick={() => loginByGoogle()} type="submit" className="login-button">Login by Google</button>
+        <p className="register-link">New to Netflix? <a href="/register">Register now</a></p>
       </div>
     </>
   );

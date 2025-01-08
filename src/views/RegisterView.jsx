@@ -3,6 +3,13 @@ import "../components/components.css";
 import { useNavigate } from "react-router-dom";
 import Nav from "../components/Header";
 import { useUserContext } from "../contexts/UserContext";
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
+import { auth } from "../firebase";
 import { useState } from "react";
 
 function RegisterView() {

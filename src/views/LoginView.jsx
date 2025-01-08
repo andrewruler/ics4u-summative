@@ -30,8 +30,8 @@ function LoginView() {
   async function loginByGoogle() {
     try {
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
-      navigate('/movies/all');
-      setUser(user);
+      navigate('/movies');
+      (user);
     } catch (error) {
       console.log(error);
       alert("Error signing in!");

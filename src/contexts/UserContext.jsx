@@ -1,32 +1,27 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import {map} from 'immutable';
+import {auth} from '../firebase';
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [userData, setUserData] = useState({
-    firstName: "",
-    lastName: "",
-    username: "",
-    email: "",
-    pass: "",
-  });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(Map());
+  const [cart,setCart] = useState(Map());
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const updateUser = (field, value) => {
-    setUserData((prevData) => ({
-      ...prevData,
-      [field]: value,
-    }));
-  };
-
-  const toggleLogin = (boolean) => {
-    setIsLoggedIn(boolean);
-  };
-
-  const checkLogin = () => {
-    return isLoggedIn;
-  };
+  useEffect( () => {
+    onAuthStateChanged(auth, user => {
+      if(user){
+        setUser(user);
+        const sessionCart = localStorage.getItem(user.uid);
+        if (sessionCart){
+          setCart(map(JSON.parse(sessionCart)));
+        }
+      }
+      setLoading(false);
+    })
+  })
 
   const [genreList, setGenreList] = useState([
     { name: "Action", id: 28, selected: false },
@@ -53,7 +48,7 @@ export const UserProvider = ({ children }) => {
 
   return (
     <UserContext.Provider
-      value={{ userData, checkLogin, updateUser, toggleLogin, genreList, updateGenre }}
+      value={{ userData, checkLogin, updateUser, toggleLogin, genreList, updateGenre, cart, setCart }}
     >
       {children}
     </UserContext.Provider>

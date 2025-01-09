@@ -10,17 +10,14 @@ import { auth } from '../firebase';
 function LoginView() {
   const email = useRef('');
   const navigate = useNavigate();
-  const { updateUser, toggleLogin } = useUserContext();
-  const [password, setPass1] = useState("");
-  const [newUsername, setNewUsername] = useState("");
+  const [setUser] = useUserContext();
+  const [password, setPassword] = useState();
 
   async function emailLogIn(event) {
     event.preventDefault();
     try {
       const user = await signInWithEmailAndPassword(auth, newUsername, password).user;
-      updateUser('firstName', newUsername);
-      setNewUsername("");
-      toggleLogin(true);
+      setUser(user);
       navigate("/");
     } catch (error) {
       console.error('Error logging in with email:', error);
@@ -31,16 +28,12 @@ function LoginView() {
     try {
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
       navigate('/movies');
-      (user);
+      console.log(user);
     } catch (error) {
       console.log(error);
       alert("Error signing in!");
     }
   }
-
-  const handleChange = (e) => {
-    setNewUsername(e.target.value);
-  };
 
   return (
     <>
@@ -54,14 +47,15 @@ function LoginView() {
               name="email"
               placeholder="Email or Username"
               value={newUsername}
-              onChange={handleChange}
+              ref = {email}
+              required
             />
             <input
               type="text"
               name="pass1"
               placeholder="Password"
               value={password}
-              onChange={(e) => setPass1(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <button type="submit" name="submit" className="submit">
               Sign In

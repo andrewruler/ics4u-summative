@@ -1,17 +1,37 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { useCartContext } from "../contexts/CartContext";
+import { useUserContext } from "../contexts/UserContext";
+import { firestore } from '../firebase';
+import {doc, setDoc} from 'firebase/firestore';
 import "./CartView.css";
 
 function CartView() {
-  const { cart, setCart } = useCartContext();
+  const { cart, setCart } = useUserContext();
+  const docRef = doc(firestore, 'users', user.uid);
+  const data = (await getDoc(docRef)).data(); 
+  setCart(Map(data));
+
+  const docRef = doc(firestore, 'users', user.uid);
+    const data = (await getDoc(docRef)).data(); 
+    const cart = Map(data);
+  const checkOut = async () => {
+    const docRef = doc(firestore, 'users', user.uid);
+    await setDoc(docRef, cart.toJS());
+  }
+  
+  const getCart = async () => {
+    const docRef = doc(firestore, 'users', user.uid);
+    const data = (await getDoc(docRef)).data(); 
+    const cart = Map(data);
+  }
 
   return (
     <>
       <Header />
+
       <div className="cart-view">
         <div className = 'header2'><h1>Movie Cart</h1></div>
-
+        <button onClick = {() => checkOut()}>Checkout </button>
         <div className="cart-items">
           {cart.entrySeq().map(([key, value]) => {
             return (

@@ -1,13 +1,13 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useCartContext } from "../contexts/CartContext";
+import { useUserContext } from "../contexts/UserContext";
 import "./DetailView.css";
 
 function DetailView() {
   const [movie, setMovie] = useState({});
   const { movieId } = useParams();
-  const { setCart } = useCartContext();
+  const { setCart } = useUserContext();
   
   useEffect(() => {
     async function getMovie() {

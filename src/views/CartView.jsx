@@ -4,25 +4,28 @@ import { useUserContext } from "../contexts/UserContext";
 import { firestore } from '../firebase';
 import {doc, setDoc} from 'firebase/firestore';
 import "./CartView.css";
+import { useEffect } from 'react'
 
 function CartView() {
-  const { cart, setCart } = useUserContext();
-  const docRef = doc(firestore, 'users', user.uid);
-  const data = (await getDoc(docRef)).data(); 
-  setCart(Map(data));
+  const { user, cart, setCart } = useUserContext();
 
-  const docRef = doc(firestore, 'users', user.uid);
-    const data = (await getDoc(docRef)).data(); 
-    const cart = Map(data);
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (user){
+        const docRef = doc(firestore, 'users', user.uid);
+        const data = (await getDoc(docRef)).data(); 
+        if (data) {
+          setCart(Map(data));
+        }
+      }
+    };
+    fetchCart();
+  }, [user]);
+  
+
   const checkOut = async () => {
     const docRef = doc(firestore, 'users', user.uid);
-    await setDoc(docRef, cart.toJS());
-  }
-  
-  const getCart = async () => {
-    const docRef = doc(firestore, 'users', user.uid);
-    const data = (await getDoc(docRef)).data(); 
-    const cart = Map(data);
+    await setDoc(docRef, { purchasedMovies: cart.toJS() }, { merge: true });
   }
 
   return (

@@ -1,6 +1,6 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import {map} from 'immutable';
+import {Map} from 'immutable';
 import {auth} from '../firebase';
 
 const UserContext = createContext();
@@ -10,11 +10,25 @@ export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(Map());
   const [cart,setCart] = useState(Map());
 
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      if (user){
+        const docRef = doc(firestore, 'users', user.uid);
+        const data = (await getDoc(docRef)).data(); 
+        if (data) {
+          setCart(Map(data));
+        }
+      }
+    };
+    fetchCart();
+  }, [user]);
+
   useEffect( () => {
     onAuthStateChanged(auth, user => {
       if(user){
         setUser(user);
         const sessionCart = localStorage.getItem(user.uid);
+        console.log(sessionCart);
         if (sessionCart){
           setCart(map(JSON.parse(sessionCart)));
         }
@@ -46,9 +60,10 @@ export const UserProvider = ({ children }) => {
     );
   };
 
+  
   return (
     <UserContext.Provider
-      value={{ userData, checkLogin, updateUser, toggleLogin, genreList, updateGenre, cart, setCart }}
+      value={{ user, setUser, genreList, updateGenre, cart, setCart }}
     >
       {children}
     </UserContext.Provider>

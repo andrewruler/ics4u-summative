@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useCartContext } from '../contexts/CartContext';
+import { useUserContext } from '../contexts/UserContext';
 import './GenreView.css';
 
 function GenreView() {
@@ -10,7 +10,7 @@ function GenreView() {
   const [movies, setMovies] = useState([]);
   const [data, setData] = useState();
   const [page, setPage] = useState(1);
-  const { setCart } = useCartContext();
+  const { setCart } = useUserContext();
   const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
   useEffect(() => {

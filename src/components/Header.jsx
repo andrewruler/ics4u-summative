@@ -3,7 +3,7 @@ import { useUserContext } from "../contexts/UserContext";
 import "./Header.css";
 
 function Header() {
-  const { checkLogin, setUserData } = useUserContext();
+  const { user, setUser } = useUserContext();
   return (
     <div>
       <nav>
@@ -11,7 +11,7 @@ function Header() {
           <li>
             <Link to="/">Home</Link>
           </li>
-          {checkLogin() ? (
+          {user ? (
             <>
               <li>
                 <Link to="/Movies">Movies</Link>
@@ -25,7 +25,7 @@ function Header() {
               <li>
                 <Link to = '/' onClick = {
                   () => {
-                      setUserData({});
+                      setUser({});
                   }
                 }>Logout</Link>
               </li>

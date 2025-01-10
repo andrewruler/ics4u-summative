@@ -22,6 +22,11 @@ function RegisterView() {
   const [confirmPassword, setConfirmPassword] = useState();
   const [username, setUsername] = userUserContext();
 
+  const saveGenres = async () => {
+    const docRef = doc(firestore, 'users', user.uid);
+    await setDoc(docRef, { selectedGenres: selectedGenres.toJS() }, { merge: true });
+  }
+
   const [selectedGenres, setSelectedGenres] = useState(
     genreList.filter((genre) => genre.selected).map((genre) => genre.id)
   );
@@ -53,13 +58,14 @@ function RegisterView() {
         setUser(user);
       } catch(e) {
         console.log(e);
-      }
+      }                          
       genreList.forEach((genre) => {
         const isSelected = selectedGenres.includes(genre.id);
         if (isSelected !== genre.selected) {
           updateGenre(genre);
         }
       });
+      saveGenres();
       navigate("../");
     }
   }
@@ -68,6 +74,7 @@ function RegisterView() {
     try {
       const user = ( await signInWithPopup(auth, new GoogleAuthProvider())).user;
       setUser(user);
+      saveGenres();
       navigate('./');
     } catch (e) {
       console.log(e);
@@ -170,7 +177,7 @@ function RegisterView() {
             <span onClick={() => navigate("/Login")}>Sign In</span>
           </p>
 
-          <button onClick = {() => registerGoogle()} className ='register-button' id ='google-register-button'>Google</button> 
+          <button onClick = {() => googleSignIn()} className ='register-button' id ='google-register-button'>Google</button> 
         </form>
       </div>
     </>

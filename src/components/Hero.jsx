@@ -3,17 +3,19 @@ import "./Hero.css";
 import { useNavigate } from "react-router-dom";
 
 function Hero() {
-  const { userData, checkLogin } = useUserContext();
+  const { user } = useUserContext();
   const navigate = useNavigate();
+  console.log(user?.displayName);
+  console.log(user);
   return (
     <div className = 'hero-container'>
       <video autoPlay muted loop id="background-video">
         <source src="src\assets\background.mp4" type="video/mp4"></source>
         Your browser does not support the video tag.
       </video>
-      <h1 className="signintext">
-        Welcome back, {userData.firstName ? userData.firstName : "Guest"}!
-      </h1>
+      {/* <h1 className="signintext">
+        Welcome back, {user.displayName ? userData.displayName : "Guest"}!
+      </h1> */}
 
       <div className="hero">
         <h1 className="signintext">Endless movies, TV shows, and more</h1>

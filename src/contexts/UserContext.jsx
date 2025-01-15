@@ -21,10 +21,10 @@ export const UserProvider = ({ children }) => {
       }
     };
     fetchCart();
-  }, [user]);
+  }, [user]);+
 
   useEffect( () => {
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, async (user) => {
       if(user){
         setUser(user);
         const sessionCart = localStorage.getItem(user.uid);
@@ -32,6 +32,9 @@ export const UserProvider = ({ children }) => {
         if (sessionCart){
           setCart(map(JSON.parse(sessionCart)));
         }
+        
+        const docRef = doc(firestore, 'users', user.uid);
+        const data = (await getDoc(docRef)).data(); 
       }
       setLoading(false);
     })

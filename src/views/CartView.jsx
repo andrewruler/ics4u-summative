@@ -9,18 +9,18 @@ import { useEffect } from 'react'
 function CartView() {
   const { user, cart, setCart } = useUserContext();
 
-  useEffect(() => {
-    const fetchCart = async () => {
-      if (user){
-        const docRef = doc(firestore, 'users', user.uid);
-        const data = (await getDoc(docRef)).data(); 
-        if (data) {
-          setCart(Map(data));
-        }
-      }
-    };
-    fetchCart();
-  }, [user]);
+  // useEffect(() => {
+  //   const fetchCart = async () => {
+  //     if (user){
+  //       const docRef = doc(firestore, 'users', user.uid);
+  //       const data = (await getDoc(docRef)).data(); 
+  //       if (data) {
+  //         setCart(Map(data));
+  //       }
+  //     }
+  //   };
+  //   fetchCart();
+  // }, [user]);
   
 
   const checkOut = async () => {

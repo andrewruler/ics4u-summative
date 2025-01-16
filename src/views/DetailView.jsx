@@ -7,7 +7,7 @@ import "./DetailView.css";
 function DetailView() {
   const [movie, setMovie] = useState({});
   const { movieId } = useParams();
-  const { setCart } = useUserContext();
+  const { user, cart, setCart } = useUserContext();
   
   useEffect(() => {
     async function getMovie() {
@@ -22,19 +22,16 @@ function DetailView() {
     }
     getMovie();
   }, [movieId]);
+  
+  const addToCart = () => {
+    setCart((prevCart) )
+  }
 
   return (
     <>
       <div className="movie-detail">
         <button
-          onClick={() =>
-            setCart((prevCart) =>
-              prevCart.set(movieId, {
-                title: movie.original_title,
-                url: movie.poster_path,
-              })
-            )
-          }
+          onClick={() => addToCart()}
           className="buy-button"
         >
           Buy

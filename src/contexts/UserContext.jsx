@@ -1,40 +1,31 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import {Map} from 'immutable';
-import {auth} from '../firebase';
-
+import {auth,firestore} from '../firebase';
+import { doc, getDoc } from "firebase/firestore";
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(Map());
+  const [loading, setLoading] = useState(true);
   const [cart,setCart] = useState(Map());
-
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      if (user){
-        const docRef = doc(firestore, 'users', user.uid);
-        const data = (await getDoc(docRef)).data(); 
-        if (data) {
-          setCart(Map(data));
-        }
-      }
-    };
-    fetchCart();
-  }, [user]);+
+  const [userData,setUserData] = useState();
 
   useEffect( () => {
     onAuthStateChanged(auth, async (user) => {
       if(user){
+        console.log(user);
         setUser(user);
         const sessionCart = localStorage.getItem(user.uid);
         console.log(sessionCart);
+        
         if (sessionCart){
           setCart(map(JSON.parse(sessionCart)));
         }
         
         const docRef = doc(firestore, 'users', user.uid);
-        const data = (await getDoc(docRef)).data(); 
+        console.log(docRef);
+        setUserData((await getDoc(docRef)).data()); 
       }
       setLoading(false);
     })

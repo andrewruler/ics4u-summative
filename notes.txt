@@ -1,8 +1,7 @@
 Task Notes:
 
-- Add to carts adds in local storage and context
-- Ensure that React Context only stores the Firebase Authentication user object, genre
-preferences, shopping cart and previous purchases.
+- make data structures immutable
+- improve css
 
 Current task:
 - genres
@@ -13,4 +12,9 @@ Learning Notes:
 
 Questions to ask:
 - Should read from firestore in order to see purchased movies?
+- is it ok to use uuid for email
+- is it ok to use split for storing bio
+- should we make selectedGenres immutable
+- how to handle genres with google signin
 
+- when to read from firestore

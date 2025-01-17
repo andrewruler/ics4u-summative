@@ -26,7 +26,32 @@ export const UserProvider = ({ children }) => {
         }
       }
     };
+
+    const fetchGenres = async () => {
+      if (user) {
+        const docRef = doc(firestore, 'users', user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.selectedGenres) {
+            const selectedGenreIds = data.selectedGenres;
+
+            setGenreList((prevList) =>
+              prevList.map((genre) => ({
+                ...genre,
+                selected: selectedGenreIds.includes(genre.id),
+              }))
+            );
+            
+            console.log("Fetched selected genres:", selectedGenreIds);
+          }
+        }
+      }
+    };
+    
+
     fetchPurchasedMovies();
+    fetchGenres();
   }, [user]);
   
 
@@ -69,6 +94,7 @@ export const UserProvider = ({ children }) => {
     { name: "Mystery", id: 9648, selected: false },
     { name: "War", id: 10752, selected: false },
   ]);
+
   const selectedGenres = genreList.filter((genre) => genre.selected).map((genre) => genre.id);
   const updateGenre = (genre) => {
     setGenreList((prevList) =>

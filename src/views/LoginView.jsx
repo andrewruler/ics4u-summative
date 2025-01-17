@@ -71,7 +71,7 @@ function LoginView() {
               required
             />
             <input
-              type="text"
+              type="password"
               name="pass1"
               placeholder="Password"
               value={password}

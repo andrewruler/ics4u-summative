@@ -140,6 +140,7 @@ function RegisterView() {
             <div className="genre-grid">
               {genreList.map((genre) => (
                 <div key={genre.id} className="genre-item">
+                <label>
                   <input
                     type="checkbox"
                     id={genre.id}
@@ -147,8 +148,9 @@ function RegisterView() {
                     checked={selectedGenres.includes(genre.id)}
                     onChange={() => updateGenre(genre)}
                   />
-                  <label htmlFor={genre.id}>{genre.name}</label>
-                </div>
+                  {genre.name}
+                </label>
+              </div>              
               ))}
             </div>
           </div>

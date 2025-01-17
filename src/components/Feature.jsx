@@ -6,7 +6,7 @@ import axios from "axios";
 
 function Feature() {
 
-  const { isLoggedIn } = useUserContext();
+  const { user } = useUserContext();
   const [movies, setMovies] = useState([]);
 
   function shuffleArray(array) {
@@ -42,7 +42,7 @@ function Feature() {
       <div className="movie-cards-container">
         {movies.map((movie) => (
           <div key={movie.id} className="movie-card">
-            <Link to={!isLoggedIn ? `/movies/Detail/${movie.id}`: "/Login"}>
+            <Link to={user ? `/movies/Detail/${movie.id}`: "/register"}>
               <img
                 src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                 alt={movie.title}

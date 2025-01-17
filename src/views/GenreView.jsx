@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useUserContext } from '../contexts/UserContext';
+import {Map} from 'immutable'
 import './GenreView.css';
 
 function GenreView() {
@@ -10,7 +11,7 @@ function GenreView() {
   const [movies, setMovies] = useState([]);
   const [data, setData] = useState();
   const [page, setPage] = useState(1);
-  const { setCart } = useUserContext();
+  const { setCart, purchasedMovies, cart, user } = useUserContext();
   const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
   useEffect(() => {
@@ -28,6 +29,23 @@ function GenreView() {
 
     getMoviesData();
   }, [genreId, API_KEY, page]);
+
+  const addToCart = (movie) => {
+    console.log(purchasedMovies);
+    if(!cart?.has(movie?.id)) {
+      if(!purchasedMovies?.has(movie?.id)) {
+        console.log("purchasedMovies", purchasedMovies);
+        const updatedCart = cart.set(movie.id, Map(movie));
+        setCart(updatedCart);
+        localStorage.setItem(user.uid, JSON.stringify(updatedCart.toJS()));
+        alert(`${movie.original_title} added to your cart!`);
+      } else {
+        alert(`You have already purchased ${movie.original_title}!`);
+      }
+    } else {
+      alert(`${movie.original_title} is already in your cart!`);
+    }
+  };
 
   function goToDetailView(movie) {
     navigate(`../Detail/${movie.id}`);
@@ -58,19 +76,8 @@ function GenreView() {
               alt={movie.title}
               onClick={() => goToDetailView(movie)}
             />
-            <button
-              onClick={() =>
-                setCart((prevCart) =>
-                  prevCart.set(movie.id, {
-                    title: movie.original_title,
-                    url: movie.poster_path,
-                  })
-                )
-              }
-              className="buy-button"
-            >
-              Buy
-            </button>
+            <button onClick={() => addToCart(movie)}>Add to Cart</button>
+
           </div>
         ))}
       </div>

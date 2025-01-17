@@ -11,40 +11,29 @@ import {
 } from "firebase/auth";
 import { auth } from "../firebase";
 import { useState } from "react";
+import { doc, setDoc, getFirestore } from "firebase/firestore";
 
 function RegisterView() {
   const navigate = useNavigate();
-  const { genreList, setGenre } = useUserContext();
+  const { genreList, updateGenre, setUser, user, selectedGenres } = useUserContext();
   const [firstName, setFirstName] = useState();
   const [lastName, setLastName] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [confirmPassword, setConfirmPassword] = useState();
-  const [username, setUsername] = userUserContext();
+  const firestore = getFirestore();
 
   const saveGenres = async () => {
+    console.log(user.uid);
     const docRef = doc(firestore, 'users', user.uid);
-    await setDoc(docRef, { selectedGenres: selectedGenres.toJS() }, { merge: true });
+    await setDoc(docRef, { selectedGenres }, { merge: true });
   }
-
-  const [selectedGenres, setSelectedGenres] = useState(
-    genreList.filter((genre) => genre.selected).map((genre) => genre.id)
-  );
-
-  const handleGenreChange = (genreId) => {
-    setSelectedGenres((prevSelected) =>
-      prevSelected.includes(genreId)
-        ? prevSelected.filter((id) => id !== genreId)
-        : [...prevSelected, genreId]
-    );
-  };
+  
 
   async function registerEmail(event) {
     event.preventDefault();
-   
-    if (!firstName || !lastName || !username || !email || !password || !confirmPassword) {
+    if (!firstName || !lastName || !email || !password || !confirmPassword) {
       alert("Please fill in all fields.");
-
     } else if (password !== confirmPassword) {
       alert("Passwords do not match!");
 
@@ -53,31 +42,34 @@ function RegisterView() {
 
     } else {
       try {
-        const user = (await createUserWithEmailAndPassword(auth,email,password).user)
-        await updateProfile(user, {displayName: `${firstName}${lastName}`})
+        const user = (await createUserWithEmailAndPassword(auth,email,password)).user
+        await updateProfile(user, {displayName: `${firstName} ${lastName}`})
+        console.log("User registered:", user);
         setUser(user);
-      } catch(e) {
-        console.log(e);
-      }                          
-      genreList.forEach((genre) => {
-        const isSelected = selectedGenres.includes(genre.id);
-        if (isSelected !== genre.selected) {
-          updateGenre(genre);
+        saveGenres();
+        navigate("../");
+      } catch (error) {
+        if (error.code === "auth/email-already-in-use") {
+          alert("This email is already in use. Please use a different email or sign in.");
+        } else {
+          console.log("Error during registration:", error);
+          alert("An error occurred during registration. Please try again.");
         }
-      });
-      saveGenres();
-      navigate("../");
+        return;
+      }                
     }
   }
 
-  async function googleSignIn() {
+  async function googleSignIn(event) {
+    console.log(event);
     try {
       const user = ( await signInWithPopup(auth, new GoogleAuthProvider())).user;
       setUser(user);
       saveGenres();
-      navigate('./');
-    } catch (e) {
-      console.log(e);
+      console.log("User signed in:", user);
+      navigate('/');
+    } catch (error) {
+      console.log("Error during Google sign-in:", error);
     }
   }
 
@@ -92,41 +84,34 @@ function RegisterView() {
           <p>Enjoy unlimited movies and TV shows. Cancel anytime.</p>
         </div>
 
-        <form className="register-form" onSubmit={registerEmail(e)}>
+        <form className="register-form">
           <div className="form-group">
             <input
               type="text"
               name="firstName"
               placeholder="First Name"
-              value={formData.firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              value={firstName}
+              onChange={(event) => setFirstName(event.target.value)}
               required
             />
             <input
               type="text"
               name="lastName"
               placeholder="Last Name"
-              value={formData.lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              value={lastName}
+              onChange={(event) => setLastName(event.target.value)}
               required
             />
           </div>
 
           <div className="form-group">
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={formData.username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+        
             <input
               type="email"
               name="email"
               placeholder="Email Address"
-              value={formData.email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               required
             />
           </div>
@@ -136,16 +121,16 @@ function RegisterView() {
               type="password"
               name="password"
               placeholder="Password"
-              value={formData.password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
               required
             />
             <input
               type="password"
               name="confirmPassword"
               placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
               required
             />
           </div>
@@ -160,7 +145,7 @@ function RegisterView() {
                     id={genre.id}
                     value={genre.name}
                     checked={selectedGenres.includes(genre.id)}
-                    onChange={() => handleGenreChange(genre.id)}
+                    onChange={() => updateGenre(genre)}
                   />
                   <label htmlFor={genre.id}>{genre.name}</label>
                 </div>
@@ -168,7 +153,7 @@ function RegisterView() {
             </div>
           </div>
 
-          <button type="submit" className="register-button">
+          <button type="submit" className="register-button" onClick = {registerEmail}>
             Create Account
           </button>
 
@@ -176,9 +161,9 @@ function RegisterView() {
             Already have an account?{" "}
             <span onClick={() => navigate("/Login")}>Sign In</span>
           </p>
-
-          <button onClick = {() => googleSignIn()} className ='register-button' id ='google-register-button'>Google</button> 
-        </form>
+          <button onClick = {googleSignIn} className ='register-button' id ='google-register-button' type='button'>Google</button> 
+       </form>
+      
       </div>
     </>
   );

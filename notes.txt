@@ -1,0 +1,16 @@
+Task Notes:
+
+- Add to carts adds in local storage and context
+- Ensure that React Context only stores the Firebase Authentication user object, genre
+preferences, shopping cart and previous purchases.
+
+Current task:
+- genres
+
+Learning Notes:
+- useRef is useState but no rerender
+- function takes in a callback function, runs it and uses its result
+
+Questions to ask:
+- Should read from firestore in order to see purchased movies?
+

@@ -4,23 +4,44 @@ import { useState, useRef } from "react";
 import { useUserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import Nav from "../components/Header";
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from 'firebase/auth';
 import { auth } from '../firebase';
 
 function LoginView() {
   const email = useRef('');
   const navigate = useNavigate();
-  const [setUser] = useUserContext();
+  const {setUser} = useUserContext();
   const [password, setPassword] = useState();
 
   async function emailLogIn(event) {
     event.preventDefault();
+    if (!email.current.value || !password) {
+      alert("Please provide both email and password.");
+      return;
+    }
+  
     try {
-      const user = await signInWithEmailAndPassword(auth, newUsername, password).user;
+      const user = (await signInWithEmailAndPassword(auth, email.current.value, password)).user;
       setUser(user);
       navigate("/");
     } catch (error) {
-      console.error('Error logging in with email:', error);
+      switch (error.code) {
+        case "auth/user-not-found":
+          alert("No user found with this email. Please check your email or register.");
+          break;
+        case "auth/wrong-password":
+          alert("Incorrect password. Please try again.");
+          break;
+        case "auth/invalid-email":
+          alert("The email address is not valid. Please check and try again.");
+          break;
+        case "auth/invalid-credential":
+          alert("No user/password combination found with this email. Please check your email and password or register.");
+          break;
+        default:
+          console.error("Unexpected error code:", error.code);
+          alert(`An unexpected error occurred: ${error.message}`);
+      }
     }
   }
 
@@ -40,13 +61,12 @@ function LoginView() {
       <Nav />
       <div className="signin">
         <h1 className="signintext">Welcome back! Login!</h1>
-        <form onSubmit={emailLogIn}>
+        <form>
           <div>
             <input
               type="text"
               name="email"
-              placeholder="Email or Username"
-              value={newUsername}
+              placeholder="Email"
               ref = {email}
               required
             />
@@ -57,7 +77,7 @@ function LoginView() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <button type="submit" name="submit" className="submit">
+            <button type="submit" name="submit" className="submit" onClick = {emailLogIn}>
               Sign In
             </button>
           </div>

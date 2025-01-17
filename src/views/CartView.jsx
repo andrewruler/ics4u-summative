@@ -3,29 +3,23 @@ import Footer from '../components/Footer';
 import { useUserContext } from "../contexts/UserContext";
 import { firestore } from '../firebase';
 import {doc, setDoc} from 'firebase/firestore';
+import { Map } from 'immutable';
 import "./CartView.css";
-import { useEffect } from 'react'
 
 function CartView() {
   const { user, cart, setCart } = useUserContext();
-
-  // useEffect(() => {
-  //   const fetchCart = async () => {
-  //     if (user){
-  //       const docRef = doc(firestore, 'users', user.uid);
-  //       const data = (await getDoc(docRef)).data(); 
-  //       if (data) {
-  //         setCart(Map(data));
-  //       }
-  //     }
-  //   };
-  //   fetchCart();
-  // }, [user]);
-  
-
+  console.log(cart instanceof Map); 
   const checkOut = async () => {
-    const docRef = doc(firestore, 'users', user.uid);
-    await setDoc(docRef, { purchasedMovies: cart.toJS() }, { merge: true });
+    try {
+      const docRef = doc(firestore, 'users', user.uid);
+      await setDoc(docRef, { purchasedMovies: cart.toJS() }, { merge: true });
+      alert('Checkout successful!');
+      setCart(Map()); 
+      localStorage.removeItem(user.uid);
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      alert("An error occurred during checkout. Please try again.");
+    }
   }
 
   return (
@@ -34,24 +28,24 @@ function CartView() {
 
       <div className="cart-view">
         <div className = 'header2'><h1>Movie Cart</h1></div>
-        <button onClick = {() => checkOut()}>Checkout </button>
+        <button onClick={checkOut}>Checkout </button>
         <div className="cart-items">
-          {cart.entrySeq().map(([key, value]) => {
-            return (
-              <div className="cart-item" key={key}>
-                <img src={`https://image.tmdb.org/t/p/w500${value.url}`} />
-                <button
-                  onClick={() => setCart((prevCart) => prevCart.delete(key))}
-                >
-                  Remove
-                </button>
-              </div>
-            );
-          })}
+          {cart.entrySeq().map(([key, value]) => (
+            <div className="cart-item" key={key}>
+              <img src={`https://image.tmdb.org/t/p/w500${value.url}`} alt={value.title} />
+              <button
+                onClick={() => setCart((prevCart) => prevCart.delete(key))}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
         </div>
-        {
-          <div className = 'extraText'><p>Looks like your cart could use a few more movies!</p></div>
-          }
+        {cart.size === 0 && (
+          <div className="extraText">
+            <p>Looks like your cart could use a few more movies!</p>
+          </div>
+        )}
       </div>
       <Footer />
     </>

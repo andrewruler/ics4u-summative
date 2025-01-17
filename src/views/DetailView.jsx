@@ -2,12 +2,13 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
+import { Map } from 'immutable';
 import "./DetailView.css";
 
 function DetailView() {
   const [movie, setMovie] = useState({});
   const { movieId } = useParams();
-  const { user, cart, setCart } = useUserContext();
+  const { user, cart, setCart, purchasedMovies } = useUserContext();
   
   useEffect(() => {
     async function getMovie() {
@@ -24,8 +25,22 @@ function DetailView() {
   }, [movieId]);
   
   const addToCart = () => {
-    setCart((prevCart) )
-  }
+    console.log(purchasedMovies);
+    if(!cart?.has(movieId)) {
+      if(!purchasedMovies?.has(movieId)) {
+        console.log("purchasedMovies", purchasedMovies);
+        const updatedCart = cart.set(movieId, Map(movie));
+        setCart(updatedCart);
+        localStorage.setItem(user.uid, JSON.stringify(updatedCart.toJS()));
+        alert(`${movie.original_title} added to your cart!`);
+      } else {
+        alert(`You have already purchased ${movie.original_title}!`);
+      }
+    } else {
+      alert(`${movie.original_title} is already in your cart!`);
+    }
+  };
+  
 
   return (
     <>

@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
 import "./Header.css";
 
 function Header() {
@@ -23,11 +25,13 @@ function Header() {
                 <Link to="/settings">Settings</Link>
               </li>
               <li>
-                <Link to = '/' onClick = {
-                  () => {
-                      setUser({});
-                  }
-                }>Logout</Link>
+              <Link to="/" onClick={() => {
+                signOut(auth).then(() => {
+                  setUser(null);
+                }).catch((error) => {
+                  console.log("Error during sign out:", error);
+                });
+              }}>Logout</Link>
               </li>
             </>
           ) : (

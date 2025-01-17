@@ -1,0 +1,32 @@
+/* Styling for the Google Sign-In Button */
+.login-button {
+    background-color: #4285F4; /* Google blue */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    display: inline-block;
+    margin-top: 15px;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .login-button:hover {
+    background-color: #357ae8; /* Slightly darker blue on hover */
+    transform: scale(1.05); /* Slight zoom on hover */
+  }
+  
+  .login-button:active {
+    background-color: #2a65c6; /* Even darker blue on click */
+    transform: scale(0.98); /* Pressed effect */
+  }
+  
+  .login-button:focus {
+    outline: 2px solid #8ab4f8; /* Focus ring for accessibility */
+    outline-offset: 2px;
+  }
+  

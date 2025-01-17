@@ -3,68 +3,60 @@ import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import "./SettingsView.css";
+import { firestore } from '../firebase';
+import { doc, setDoc} from "firebase/firestore";
 
 function SettingsView() {
-  const { userData, updateUser, updateGenre, genreList } = useUserContext();
+  const { setUser, updateGenre, genreList, user, selectedGenres } = useUserContext();
+  const [firstName, lastName] = user?.displayName?.split(" ") || ["", ""];
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    firstName: userData.firstName || "",
-    lastName: userData.lastName || "",
-    username: userData.username || "",
-    email: userData.email || "",
-  });
-
-  const [selectedGenres, setSelectedGenres] = useState(
-    genreList.filter((genre) => genre.selected).map((genre) => genre.id)
-  );
 
   const [error, setError] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setUser((prevUser) => ({ ...prevUser, [name]: value }));
   };
 
-  const handleGenreChange = (genreId) => {
-    setSelectedGenres((prevSelected) => {
-      if (prevSelected.includes(genreId)) {
-        return prevSelected.filter((id) => id !== genreId);
-      }
-      return [...prevSelected, genreId];
-    });
+  const checkReadOnly = () => {
+    if (user?.providerData[0]?.providerId === "google.com") {
+      return true; 
+    } else if (user?.providerData[0]?.providerId === "password") {
+      return false; 
+    } else {
+      console.log("error with user type");
+      return false;
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-  
+
     if (selectedGenres.length < 10) {
       setError("You must select exactly 10 genres.");
       return;
     }
-  
+
     setError("");
-  
-    // Update user information
-    updateUser("firstName", formData.firstName);
-    updateUser("lastName", formData.lastName);
-    updateUser("username", formData.username);
-    updateUser("email", formData.email);
-  
-    // Sync selected genres with context
     genreList.forEach((genre) => {
       const isSelected = selectedGenres.includes(genre.id);
       if (genre.selected !== isSelected) {
         updateGenre({ ...genre, selected: isSelected });
       }
     });
-  
+
+    const saveGenres = async () => {
+      try {
+        const docRef = doc(firestore, 'users', user.uid);
+        await setDoc(docRef, { selectedGenres: selectedGenres }, { merge: true });
+      } catch (error) {
+        console.error("Error during genres update:", error);
+      }
+    }
+
+    saveGenres();
     navigate("/");
   };
-  
 
   return (
     <>
@@ -73,69 +65,40 @@ function SettingsView() {
         <form className="settings-form" onSubmit={handleSubmit}>
           <div className="form-field">
             <label>First Name:</label>
-            <input
-              type="text"
-              placeholder={userData.firstName}
-              readOnly
-              className="readOnly"
-            />
+            <input type="text" value={firstName} readOnly />
             <input
               type="text"
               name="firstName"
               placeholder="Change your First Name"
-              value={formData.firstName}
+              value={firstName}
               onChange={handleInputChange}
+              readOnly={checkReadOnly()}
             />
           </div>
 
           <div className="form-field">
             <label>Last Name:</label>
-            <input
-              type="text"
-              placeholder={userData.lastName}
-              readOnly
-              className="readOnly"
-            />
+            <input type="text" value={lastName} readOnly />
             <input
               type="text"
               name="lastName"
               placeholder="Change your Last Name"
-              value={formData.lastName}
+              value={lastName}
               onChange={handleInputChange}
-            />
-          </div>
-
-          <div className="form-field">
-            <label>Username:</label>
-            <input
-              type="text"
-              placeholder={userData.username}
-              readOnly
-              className="readOnly"
-            />
-            <input
-              type="text"
-              name="username"
-              placeholder="Change your Username"
-              value={formData.username}
-              onChange={handleInputChange}
+              readOnly={checkReadOnly()}
             />
           </div>
 
           <div className="form-field">
             <label>Email:</label>
-            <input
-              type="email"
-              placeholder={userData.email}
-              readOnly
-              className="readOnly"
-            />
+            <input type="email" value={user?.email} readOnly />
             <input
               type="email"
               name="email"
               placeholder="Change your Email"
-              value={formData.email}
+              value={user?.email}
               onChange={handleInputChange}
+              readOnly={checkReadOnly()}
             />
           </div>
 
@@ -149,7 +112,7 @@ function SettingsView() {
                     id={genre.id}
                     value={genre.name}
                     checked={selectedGenres.includes(genre.id)}
-                    onChange={() => handleGenreChange(genre.id)}
+                    onChange={() => updateGenre(genre)}
                   />
                   <label htmlFor={genre.id}>{genre.name}</label>
                 </div>
@@ -164,5 +127,6 @@ function SettingsView() {
     </>
   );
 }
+
 
 export default SettingsView;

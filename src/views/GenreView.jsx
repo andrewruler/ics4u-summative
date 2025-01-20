@@ -84,7 +84,7 @@ function GenreView() {
 
       
       const updatedCart = cart.set(movieId, Map(movie));
-      setCart(updatedCart);
+      setCart(updatedCart); // a
 
       
       localStorage.setItem(user.uid, JSON.stringify(updatedCart.toJS()));

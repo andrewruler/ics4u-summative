@@ -1,8 +1,9 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { Map } from 'immutable';
-import { auth, firestore } from '../firebase';
-import { doc, getDoc } from "firebase/firestore";
+import { Map } from "immutable";
+import { auth, firestore } from "../firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
@@ -11,77 +12,6 @@ export const UserProvider = ({ children }) => {
   const [cart, setCart] = useState(Map());
   const [userData, setUserData] = useState();
   const [purchasedMovies, setPurchasedMovies] = useState(Map());
-
-  useEffect(() => {
-    const fetchPurchasedMovies = async () => {
-      if (user) {
-        const docRef = doc(firestore, 'users', user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data.purchasedMovies) {
-            setPurchasedMovies(Map(data.purchasedMovies));
-            console.log("Fetched purchasedMovies:", data.purchasedMovies);
-          }
-        }
-      }
-    };
-
-    const fetchGenres = async () => {
-      console.log(`Fetching genres...`, user);
-      if (user) {
-        const docRef = doc(firestore, 'users', user.uid);
-        const docSnap = await getDoc(docRef);
-        console.log("docSnap", docSnap);
-        console.log(user.uid);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data.selectedGenres) {
-            const selectedGenreIds = data.selectedGenres;
-
-            setGenreList((prevList) =>
-              prevList.map((genre) => ({
-                ...genre,
-                selected: selectedGenreIds.includes(genre.id),
-              }))
-            );
-
-            console.log("Fetched selected genres:", selectedGenreIds);
-          }
-        }
-      }
-    };
-
-    fetchPurchasedMovies();
-    fetchGenres();
-  }, [user]);
-
-
-  useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setUser(user);
-        const sessionCart = localStorage.getItem(user.uid);
-        if (sessionCart) {
-          try {
-            const parsedCart = JSON.parse(sessionCart);
-            setCart(Map(parsedCart));
-          } catch (error) {
-            console.error("Failed to parse cart from localStorage:", error);
-            setCart(Map());
-          }
-        } else {
-          setCart(Map());
-        }
-
-        console.log("cart", cart instanceof Map);
-        const docRef = doc(firestore, 'users', user.uid);
-        setUserData((await getDoc(docRef)).data());
-      }
-      setLoading(false);
-    })
-  }, []);
-
   const [genreList, setGenreList] = useState([
     { name: "Action", id: 28, selected: false },
     { name: "Horror", id: 27, selected: false },
@@ -97,18 +27,109 @@ export const UserProvider = ({ children }) => {
     { name: "War", id: 10752, selected: false },
   ]);
 
-  const selectedGenres = genreList.filter((genre) => genre.selected).map((genre) => genre.id);
-  const updateGenre = (genre) => {
-    setGenreList((prevList) =>
-      prevList.map((item) =>
+  useEffect(() => {
+    const fetchPurchasedMovies = async () => {
+      if (!user) return;
+      const docRef = doc(firestore, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.purchasedMovies) {
+          setPurchasedMovies(Map(data.purchasedMovies));
+          console.log("Fetched purchasedMovies:", data.purchasedMovies);
+        }
+      }
+    };
+
+    const fetchGenres = async () => {
+      console.log("Fetching genres...", user);
+      if (!user) return;
+      const docRef = doc(firestore, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.selectedGenres) {
+          const selectedGenreIds = data.selectedGenres;
+          setGenreList((prevList) =>
+            prevList.map((genre) => ({
+              ...genre,
+              selected: selectedGenreIds.includes(genre.id),
+            }))
+          );
+          console.log("Fetched selected genres:", selectedGenreIds);
+        }
+      }
+    };
+
+    fetchPurchasedMovies();
+    fetchGenres();
+  }, [user]);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        const sessionCart = localStorage.getItem(currentUser.uid);
+        if (sessionCart) {
+          try {
+            const parsedCart = JSON.parse(sessionCart);
+            setCart(Map(parsedCart));
+          } catch (error) {
+            console.error("Failed to parse cart from localStorage:", error);
+            setCart(Map());
+          }
+        } else {
+          setCart(Map());
+        }
+
+        const docRef = doc(firestore, "users", currentUser.uid);
+        setUserData((await getDoc(docRef)).data());
+      } else {
+        setUser(null);
+        setCart(Map());
+      }
+      setLoading(false);
+    });
+  }, []);
+
+  const selectedGenres = genreList
+    .filter((genre) => genre.selected)
+    .map((genre) => genre.id);
+
+ const updateGenre = async (genre) => {
+    setGenreList((prevList) => {
+      const newList = prevList.map((item) =>
         item.id === genre.id ? { ...item, selected: !item.selected } : item
-      )
-    );
+      );
+
+      if (user) {
+        const selectedGenreIds = newList
+          .filter((g) => g.selected)
+          .map((g) => g.id);
+
+        const userDocRef = doc(firestore, "users", user.uid);
+        updateDoc(userDocRef, { selectedGenres: selectedGenreIds })
+          .then(() => console.log("Updated selectedGenres in Firestore"))
+          .catch((err) => console.error("Failed to update selectedGenres:", err));
+      }
+      return newList;
+    });
   };
 
   return (
     <UserContext.Provider
-      value={{ user, setUser, genreList, updateGenre, selectedGenres, cart, setCart, purchasedMovies, setPurchasedMovies }}
+      value={{
+        user,
+        setUser,
+        genreList,
+        updateGenre,
+        selectedGenres,
+        cart,
+        setCart,
+        purchasedMovies,
+        setPurchasedMovies,
+        loading,
+      }}
     >
       {children}
     </UserContext.Provider>

@@ -8,7 +8,9 @@
   justify-items: center;
   align-items: center;
 }
-
+.genres-container li {
+  color:black;
+}
 /* Individual movie items */
 .movie-card {
   width: 100%;

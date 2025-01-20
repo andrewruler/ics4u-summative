@@ -16,70 +16,91 @@ import { doc, setDoc, getFirestore } from "firebase/firestore";
 function RegisterView() {
   const navigate = useNavigate();
   const { genreList, updateGenre, setUser, user, selectedGenres } = useUserContext();
-  const [firstName, setFirstName] = useState();
-  const [lastName, setLastName] = useState();
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
-  const [confirmPassword, setConfirmPassword] = useState();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const firestore = getFirestore();
 
-  const saveGenres = async () => {
-    genreList.forEach((genre) => {
+   const saveGenres = async (firebaseUser) => {
+     genreList.forEach((genre) => {
       const isSelected = selectedGenres.includes(genre.id);
       if (genre.selected !== isSelected) {
         updateGenre({ ...genre, selected: isSelected });
       }
     });
-    console.log(user.uid);
-    const docRef = doc(firestore, 'users', user.uid);
-    await setDoc(docRef, { selectedGenres }, { merge: true });
-  }
 
+     if (!firebaseUser?.uid) {
+      console.error("No valid user UID found for saving genres.");
+      return;
+    }
+
+    console.log("Saving genres for UID:", firebaseUser.uid);
+    const docRef = doc(firestore, "users", firebaseUser.uid);
+
+    await setDoc(docRef, { selectedGenres }, { merge: true });
+  };
 
   async function registerEmail(event) {
     event.preventDefault();
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
       alert("Please fill in all fields.");
-    } else if (password !== confirmPassword) {
+      return;
+    }
+    if (password !== confirmPassword) {
       alert("Passwords do not match!");
-
-    } else if (selectedGenres.length < 10) {
+      return;
+    }
+    if (selectedGenres.length < 10) {
       alert("Please select at least 10 genres to proceed.");
+      return;
+    }
 
-    } else {
-      try {
-        const user = (await createUserWithEmailAndPassword(auth, email, password)).user
-        await updateProfile(user, { displayName: `${firstName} ${lastName}` })
-        console.log("User registered:", user);
-        setUser(user);
-        saveGenres();
-        navigate("../");
-      } catch (error) {
-        if (error.code === "auth/email-already-in-use") {
-          alert("This email is already in use. Please use a different email or sign in.");
-        } else {
-          console.log("Error during registration:", error);
-          alert("An error occurred during registration. Please try again.");
-        }
-        return;
+    try {
+      const createdUser = (
+        await createUserWithEmailAndPassword(auth, email, password)
+      ).user;
+
+      await updateProfile(createdUser, {
+        displayName: `${firstName} ${lastName}`,
+      });
+
+      await saveGenres(createdUser);
+
+      setUser(createdUser);
+
+      navigate("/");
+    } catch (error) {
+      if (error.code === "auth/email-already-in-use") {
+        alert("This email is already in use. Please use a different email or sign in.");
+      } else {
+        console.log("Error during registration:", error);
+        alert("An error occurred during registration. Please try again.");
       }
     }
   }
 
   async function googleSignIn(event) {
     console.log(event);
+    if (selectedGenres.length < 10) {
+      alert("Please select at least 10 genres to proceed.");
+      return;
+    }
+
     try {
-      if (selectedGenres.length < 10) {
-        alert("Please select at least 10 genres to proceed.");
-        return;
-      }
-      const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
-      setUser(user);
-      saveGenres();
-      console.log("User signed in:", user);
-      navigate('/');
+      const googleUser = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
+
+      await saveGenres(googleUser);
+
+      setUser(googleUser);
+
+      console.log("User signed in:", googleUser);
+      navigate("/");
     } catch (error) {
       console.log("Error during Google sign-in:", error);
+      alert("An error occurred during Google sign-in. Please try again.");
     }
   }
 
@@ -88,7 +109,6 @@ function RegisterView() {
       <Nav />
 
       <div className="register-container">
-
         <div className="register-header">
           <h1>Create Your Account</h1>
           <p>Enjoy unlimited movies and TV shows. Cancel anytime.</p>
@@ -115,7 +135,6 @@ function RegisterView() {
           </div>
 
           <div className="form-group">
-
             <input
               type="email"
               name="email"
@@ -165,7 +184,11 @@ function RegisterView() {
             </div>
           </div>
 
-          <button type="submit" className="register-button" onClick={registerEmail}>
+          <button
+            type="submit"
+            className="register-button"
+            onClick={registerEmail}
+          >
             Create Account
           </button>
 
@@ -173,9 +196,16 @@ function RegisterView() {
             Already have an account?{" "}
             <span onClick={() => navigate("/Login")}>Sign In</span>
           </p>
-          <button onClick={googleSignIn} className='register-button' id='google-register-button' type='button'>Google</button>
-        </form>
 
+          <button
+            onClick={googleSignIn}
+            className="register-button"
+            id="google-register-button"
+            type="button"
+          >
+            Google
+          </button>
+        </form>
       </div>
     </>
   );

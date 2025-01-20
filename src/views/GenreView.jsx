@@ -20,7 +20,6 @@ function GenreView() {
       try {
         const response = await axios.get(url);
         setData(response.data);
-        // Convert all IDs to strings when setting movies
         setMovies(response.data.results.map(movie => ({
           ...movie,
           id: String(movie.id)

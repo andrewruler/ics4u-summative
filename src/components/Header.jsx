@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
@@ -6,6 +6,19 @@ import "./Header.css";
 
 function Header() {
   const { user, setUser } = useUserContext();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {
+        setUser(null);
+        navigate("/"); // Redirect to home page after logout
+      })
+      .catch((error) => {
+        console.log("Error during sign out:", error);
+      });
+  };
+
   return (
     <div>
       <nav>
@@ -25,13 +38,7 @@ function Header() {
                 <Link to="/settings">Settings</Link>
               </li>
               <li>
-              <Link to="/" onClick={() => {
-                signOut(auth).then(() => {
-                  setUser(null);
-                }).catch((error) => {
-                  console.log("Error during sign out:", error);
-                });
-              }}>Logout</Link>
+                <Link to="/" onClick={handleLogout}>Logout</Link>
               </li>
             </>
           ) : (

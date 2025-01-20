@@ -10,7 +10,6 @@ import "./CartView.css";
 function CartView() {
   const { user, cart, setCart } = useUserContext();
 
-  // Load existing cart from local storage when user logs in or page refreshes
   useEffect(() => {
     if (user) {
       const savedCart = localStorage.getItem(user.uid);
@@ -20,7 +19,6 @@ function CartView() {
     }
   }, [user, setCart]);
 
-  // Keep local storage in sync whenever cart changes
   useEffect(() => {
     if (user) {
       localStorage.setItem(user.uid, JSON.stringify(cart.toJS()));
@@ -33,7 +31,6 @@ function CartView() {
       await setDoc(docRef, { purchasedMovies: cart.toJS() }, { merge: true });
       alert("Checkout successful!");
 
-      // Clear cart in state & local storage
       setCart(Map());
       localStorage.removeItem(user.uid);
     } catch (error) {

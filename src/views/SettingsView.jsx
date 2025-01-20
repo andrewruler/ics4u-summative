@@ -3,11 +3,16 @@ import { useUserContext } from "../contexts/UserContext";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import "./SettingsView.css";
-
 import { firestore } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
-import { updateProfile, sendEmailVerification } from "firebase/auth";
-import { getAuth } from "firebase/auth";
+import {
+  updateProfile,
+  sendEmailVerification,
+  getAuth,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from "firebase/auth";
 import { Map } from "immutable";
 
 function SettingsView() {
@@ -18,11 +23,12 @@ function SettingsView() {
     user,
     selectedGenres,
     purchasedMovies,
-    setPurchasedMovies, 
+    setPurchasedMovies,
   } = useUserContext();
 
   const [firstName, setFirstName] = useState(user?.displayName?.split(" ")[0] || "");
   const [lastName, setLastName] = useState(user?.displayName?.split(" ")[1] || "");
+  const [newPassword, setNewPassword] = useState("");
   const [editableEmail, setEditableEmail] = useState(user?.email || "");
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState("");
@@ -34,15 +40,19 @@ function SettingsView() {
   const isReadOnly = user?.providerData[0]?.providerId === "google.com";
 
   useEffect(() => {
+    if (!user) {
+      return;
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (user) {
       const savedPurchases = localStorage.getItem(`purchased_${user.uid}`);
       if (savedPurchases) {
         setPurchasedMovies(Map(JSON.parse(savedPurchases)));
       }
     }
-
   }, [user]);
-
 
   useEffect(() => {
     if (user && purchasedMovies) {
@@ -62,6 +72,8 @@ function SettingsView() {
       setFirstName(value);
     } else if (name === "lastName") {
       setLastName(value);
+    } else if (name === "password") {
+      setNewPassword(value);
     }
   };
 
@@ -78,7 +90,9 @@ function SettingsView() {
     }
 
     const auth = getAuth();
-    if (!auth.currentUser) {
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
       console.error("No authenticated user found.");
       return;
     }
@@ -94,46 +108,52 @@ function SettingsView() {
       });
 
       const docRef = doc(firestore, "users", user.uid);
-      await setDoc(
-        docRef,
-        { selectedGenres },
-        { merge: true }
-      );
+      await setDoc(docRef, { selectedGenres }, { merge: true });
 
-      await updateProfile(auth.currentUser, {
+      await updateProfile(currentUser, {
         displayName: `${firstName} ${lastName}`,
       });
 
-      if (!emailSent) {
-        if (editableEmail !== user.email) {
-          await sendEmailVerification(auth.currentUser);
-          setError(
-            "A verification email has been sent to your new email address. " +
-            "Please verify it before the change can take effect."
-          );
-          setEmailSent(true);
-          return;
-        }
+      if (!emailSent && editableEmail !== user.email) {
+        await sendEmailVerification(currentUser);
+        setError(
+          "A verification email has been sent to your new email address. " +
+          "Please verify it before the change can take effect."
+        );
+        setEmailSent(true);
+        return;
       }
 
-      // Update user context
       setUser({
         ...user,
         displayName: `${firstName} ${lastName}`,
         email: editableEmail,
       });
 
+      if (newPassword) {
+        const currentPassword = prompt("Please enter your current password to confirm changes:");
+        const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+
+        await reauthenticateWithCredential(currentUser, credential);
+        await updatePassword(currentUser, newPassword);
+        setError("Password updated successfully!");
+      }
+
       navigate("/");
     } catch (error) {
       console.error("Error during profile update:", error);
-      setError("An error occurred while saving changes.");
+      if (error.code === "auth/requires-recent-login") {
+        setError("Session expired. Please log in again to make these changes.");
+        navigate("/login");
+      } else {
+        setError("An error occurred while saving changes.");
+      }
     }
   };
 
   return (
     <>
       <Header />
-
       <div className="settings-container">
         <form className="settings-form" onSubmit={handleSubmit}>
           <div className="form-field">
@@ -142,9 +162,7 @@ function SettingsView() {
             <input
               type="text"
               name="firstName"
-              placeholder={
-                isReadOnly ? "Not editable" : "Change your first name"
-              }
+              placeholder={isReadOnly ? "Not editable" : "Change your first name"}
               value={firstName}
               onChange={handleInputChange}
               readOnly={isReadOnly}
@@ -157,9 +175,7 @@ function SettingsView() {
             <input
               type="text"
               name="lastName"
-              placeholder={
-                isReadOnly ? "Not editable" : "Change your last name"
-              }
+              placeholder={isReadOnly ? "Not editable" : "Change your last name"}
               value={lastName}
               onChange={handleInputChange}
               readOnly={isReadOnly}
@@ -172,12 +188,21 @@ function SettingsView() {
             <input
               type="email"
               name="email"
-              placeholder={
-                isReadOnly ? "Not editable" : "Change your email"
-              }
+              placeholder={isReadOnly ? "Not editable" : "Change your email"}
               value={editableEmail}
               onChange={handleInputChange}
               readOnly={isReadOnly}
+            />
+          </div>
+
+          <div className="form-field">
+            <label>Password:</label>
+            <input
+              type="password"
+              name="password"
+              placeholder="Change your password"
+              value={newPassword}
+              onChange={handleInputChange}
             />
           </div>
 
@@ -223,7 +248,7 @@ function SettingsView() {
                 onClick={() => navigate(`./Movies/${value.id}`)}
               >
                 <img
-                  src={`https://image.tmdb.org/t/p/w500${value.poster_path}`}
+                  src={`https://image.tmdb.org/t/p/w500/${value.poster_path}`}
                   alt={value.title}
                 />
                 <div className="purchased-item-title">{value.title}</div>

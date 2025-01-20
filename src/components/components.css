@@ -9,7 +9,6 @@ body {
   animation: fadeIn 1s ease-in-out;
 }
 
-
 .logo {
   width: 100px;
   height: auto;
@@ -32,7 +31,8 @@ body {
   background-color: #f9f9f9;
   color: #333;
   font-size: 16px;
-  appearance: none; /* Remove default dropdown arrow */
+  appearance: none;
+  /* Remove default dropdown arrow */
   -webkit-appearance: none;
   -moz-appearance: none;
   position: relative;
@@ -67,16 +67,15 @@ body {
 }
 
 /* Mobile responsiveness */
-
 @keyframes slideDown {
   0% {
     transform: translateY(-100%);
   }
+
   100% {
     transform: translateY(0);
   }
 }
-
 
 form {
   width: 350px;
@@ -90,7 +89,7 @@ form div {
   gap: 20px;
 }
 
-input[type="text"] {
+input {
   width: 80%;
   padding: 15px;
   border: none;
@@ -100,6 +99,7 @@ input[type="text"] {
   transition: all 0.3s ease;
   box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.1);
 }
+
 .submit {
   border: none;
   border-radius: 8px;
@@ -108,7 +108,10 @@ input[type="text"] {
   width: 55%;
   cursor: pointer;
 }
-input[type="text"]:focus {
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus {
   background-color: #e2e8f0;
   outline: none;
   box-shadow: 0 0 4px rgba(0, 132, 255, 0.3);
@@ -182,8 +185,6 @@ input[type="text"]:hover {
   }
 }
 
-
-
 .offer {
   text-align: center;
   width: 20%;
@@ -192,6 +193,7 @@ input[type="text"]:hover {
   margin: 10px;
   animation: bounceIn 1s ease;
 }
+
 .signin {
   margin-top: 80px;
   height: 40%;
@@ -199,8 +201,10 @@ input[type="text"]:hover {
 
 .video-container {
   position: relative;
-  height: 100vh; /* Full height of the viewport */
-  overflow: hidden; /* Ensures no overflow from the video */
+  height: 100vh;
+  /* Full height of the viewport */
+  overflow: hidden;
+  /* Ensures no overflow from the video */
 }
 
 /* Video Styles */
@@ -213,9 +217,12 @@ input[type="text"]:hover {
   min-height: 100%;
   width: auto;
   height: auto;
-  z-index: -1; /* Sends the video behind other content */
-  transform: translate(-50%, -50%); /* Center the video */
-  object-fit: cover; /* Ensures the video covers the entire background */
+  z-index: -1;
+  /* Sends the video behind other content */
+  transform: translate(-50%, -50%);
+  /* Center the video */
+  object-fit: cover;
+  /* Ensures the video covers the entire background */
 }
 
 @keyframes bounceIn {
@@ -223,9 +230,11 @@ input[type="text"]:hover {
     transform: scale(0.5);
     opacity: 0;
   }
+
   80% {
     transform: scale(1.1);
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -233,8 +242,10 @@ input[type="text"]:hover {
 }
 
 .offer {
-  background-color: #f8f9fa; /* Light background */
-  border: 2px solid #ff5733; /* Orange border */
+  background-color: #f8f9fa;
+  /* Light background */
+  border: 2px solid #ff5733;
+  /* Orange border */
   padding: 20px;
   text-align: center;
   width: 300px;
@@ -245,7 +256,8 @@ input[type="text"]:hover {
 
 .offer h1 {
   font-size: 24px;
-  color: #d9534f; /* Red color */
+  color: #d9534f;
+  /* Red color */
   margin-bottom: 10px;
   text-transform: uppercase;
 }
@@ -257,7 +269,8 @@ input[type="text"]:hover {
 }
 
 .offer button {
-  background-color: #ff5733; /* Orange button */
+  background-color: #ff5733;
+  /* Orange button */
   color: white;
   border: none;
   padding: 10px 20px;
@@ -268,12 +281,14 @@ input[type="text"]:hover {
 }
 
 .offer button:hover {
-  background-color: #c70039; /* Darker shade on hover */
+  background-color: #c70039;
+  /* Darker shade on hover */
 }
 
 .offer img {
   margin-top: 15px;
-  width: 100%; /* Adjusts to the container's width */
+  width: 100%;
+  /* Adjusts to the container's width */
   border-radius: 10px;
 }
 
@@ -281,6 +296,7 @@ input[type="text"]:hover {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -302,13 +318,12 @@ input[type="text"]:hover {
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-
-
 @keyframes fadeInUp {
   0% {
     opacity: 0;
     transform: translateY(20px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -337,10 +352,12 @@ footer ul li a:hover {
 
 /* Additional Animations */
 @keyframes colorChange {
+
   0%,
   100% {
     color: #333;
   }
+
   50% {
     color: #ff6347;
   }
@@ -356,6 +373,7 @@ nav img {
     width: 100%;
   }
 }
+
 @media (max-width: 840px) {
   .dropdown {
     width: 3em;

@@ -10,7 +10,7 @@ export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState(Map());
   const [userData, setUserData] = useState();
-  const [purchasedMovies, setPurchasedMovies] = useState(Map()); 
+  const [purchasedMovies, setPurchasedMovies] = useState(Map());
 
   useEffect(() => {
     const fetchPurchasedMovies = async () => {
@@ -28,9 +28,12 @@ export const UserProvider = ({ children }) => {
     };
 
     const fetchGenres = async () => {
+      console.log(`Fetching genres...`, user);
       if (user) {
         const docRef = doc(firestore, 'users', user.uid);
         const docSnap = await getDoc(docRef);
+        console.log("docSnap", docSnap);
+        console.log(user.uid);
         if (docSnap.exists()) {
           const data = docSnap.data();
           if (data.selectedGenres) {
@@ -42,18 +45,17 @@ export const UserProvider = ({ children }) => {
                 selected: selectedGenreIds.includes(genre.id),
               }))
             );
-            
+
             console.log("Fetched selected genres:", selectedGenreIds);
           }
         }
       }
     };
-    
 
     fetchPurchasedMovies();
     fetchGenres();
   }, [user]);
-  
+
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
@@ -103,7 +105,7 @@ export const UserProvider = ({ children }) => {
       )
     );
   };
- 
+
   return (
     <UserContext.Provider
       value={{ user, setUser, genreList, updateGenre, selectedGenres, cart, setCart, purchasedMovies, setPurchasedMovies }}

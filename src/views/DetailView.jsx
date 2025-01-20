@@ -9,7 +9,7 @@ function DetailView() {
   const [movie, setMovie] = useState({});
   const { movieId } = useParams();
   const { user, cart, setCart, purchasedMovies } = useUserContext();
-  
+
   useEffect(() => {
     async function getMovie() {
       const apiKey = import.meta.env.VITE_TMDB_API_KEY;
@@ -23,11 +23,11 @@ function DetailView() {
     }
     getMovie();
   }, [movieId]);
-  
+
   const addToCart = () => {
     console.log(purchasedMovies);
-    if(!cart?.has(movieId)) {
-      if(!purchasedMovies?.has(movieId)) {
+    if (!cart?.has(movieId)) {
+      if (!purchasedMovies?.has(movieId)) {
         console.log("purchasedMovies", purchasedMovies);
         const updatedCart = cart.set(movieId, Map(movie));
         setCart(updatedCart);
@@ -40,7 +40,7 @@ function DetailView() {
       alert(`${movie.original_title} is already in your cart!`);
     }
   };
-  
+
 
   return (
     <>

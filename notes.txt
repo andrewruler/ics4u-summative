@@ -4,7 +4,8 @@ Task Notes:
 - improve css
 
 Current task:
-- genres
+- make genres localstorage maybe?
+- checkout 
 
 Learning Notes:
 - useRef is useState but no rerender

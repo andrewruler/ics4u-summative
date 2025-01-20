@@ -1,7 +1,7 @@
 
 body {
   font-family: "Arial", sans-serif;
-  background-color: #0d0d0d; 
+  background-color: #0d0d0d;
 }
 
 .hero-container {
@@ -10,7 +10,6 @@ body {
   color: #fff;
   padding: 50px 20px;
 }
-
 
 .register-container {
   max-width: 600px;
@@ -36,7 +35,6 @@ body {
   color: #b3b3b3;
 }
 
-
 .register-form {
   display: flex;
   flex-direction: column;
@@ -46,6 +44,11 @@ body {
 .form-group {
   display: flex;
   gap: 15px;
+}
+
+.register-button {
+  position: inherit;
+  margin-top: 20px;
 }
 
 .form-group input {
@@ -64,7 +67,6 @@ body {
 .form-group input:focus {
   outline: 2px solid #e50914;
 }
-
 
 .genres {
   margin-top: 20px;
@@ -87,10 +89,9 @@ body {
   margin-left: 5px;
 }
 
-.genre-item input:checked + label {
+.genre-item input:checked+label {
   color: #e50914;
 }
-
 
 button {
   padding: 12px 20px;

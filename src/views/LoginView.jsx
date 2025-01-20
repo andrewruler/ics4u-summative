@@ -10,7 +10,7 @@ import { auth } from '../firebase';
 function LoginView() {
   const email = useRef('');
   const navigate = useNavigate();
-  const {setUser} = useUserContext();
+  const { setUser } = useUserContext();
   const [password, setPassword] = useState();
 
   async function emailLogIn(event) {
@@ -19,7 +19,7 @@ function LoginView() {
       alert("Please provide both email and password.");
       return;
     }
-  
+
     try {
       const user = (await signInWithEmailAndPassword(auth, email.current.value, password)).user;
       setUser(user);
@@ -67,7 +67,7 @@ function LoginView() {
               type="text"
               name="email"
               placeholder="Email"
-              ref = {email}
+              ref={email}
               required
             />
             <input
@@ -77,13 +77,16 @@ function LoginView() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <button type="submit" name="submit" className="submit" onClick = {emailLogIn}>
+            <button type="submit" name="submit" className="submit" onClick={emailLogIn}>
               Sign In
             </button>
           </div>
         </form>
-        <button onClick={() => loginByGoogle()} type="submit" className="login-button">Login by Google</button>
-        <p className="register-link">New to Netflix? <a href="/register">Register now</a></p>
+        <p className="signin-prompt">
+          Don't have an account?{" "}
+          <span onClick={() => navigate("/register")}>Create an account</span>
+        </p>
+        <button onClick={() => loginByGoogle()} id='google-login-button' className="register-button">Login by Google</button>
       </div>
     </>
   );

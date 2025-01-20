@@ -24,11 +24,17 @@ function RegisterView() {
   const firestore = getFirestore();
 
   const saveGenres = async () => {
+    genreList.forEach((genre) => {
+      const isSelected = selectedGenres.includes(genre.id);
+      if (genre.selected !== isSelected) {
+        updateGenre({ ...genre, selected: isSelected });
+      }
+    });
     console.log(user.uid);
     const docRef = doc(firestore, 'users', user.uid);
     await setDoc(docRef, { selectedGenres }, { merge: true });
   }
-  
+
 
   async function registerEmail(event) {
     event.preventDefault();
@@ -42,8 +48,8 @@ function RegisterView() {
 
     } else {
       try {
-        const user = (await createUserWithEmailAndPassword(auth,email,password)).user
-        await updateProfile(user, {displayName: `${firstName} ${lastName}`})
+        const user = (await createUserWithEmailAndPassword(auth, email, password)).user
+        await updateProfile(user, { displayName: `${firstName} ${lastName}` })
         console.log("User registered:", user);
         setUser(user);
         saveGenres();
@@ -56,14 +62,18 @@ function RegisterView() {
           alert("An error occurred during registration. Please try again.");
         }
         return;
-      }                
+      }
     }
   }
 
   async function googleSignIn(event) {
     console.log(event);
     try {
-      const user = ( await signInWithPopup(auth, new GoogleAuthProvider())).user;
+      if (selectedGenres.length < 10) {
+        alert("Please select at least 10 genres to proceed.");
+        return;
+      }
+      const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
       setUser(user);
       saveGenres();
       console.log("User signed in:", user);
@@ -105,7 +115,7 @@ function RegisterView() {
           </div>
 
           <div className="form-group">
-        
+
             <input
               type="email"
               name="email"
@@ -140,22 +150,22 @@ function RegisterView() {
             <div className="genre-grid">
               {genreList.map((genre) => (
                 <div key={genre.id} className="genre-item">
-                <label>
-                  <input
-                    type="checkbox"
-                    id={genre.id}
-                    value={genre.name}
-                    checked={selectedGenres.includes(genre.id)}
-                    onChange={() => updateGenre(genre)}
-                  />
-                  {genre.name}
-                </label>
-              </div>              
+                  <label>
+                    <input
+                      type="checkbox"
+                      id={genre.id}
+                      value={genre.name}
+                      checked={selectedGenres.includes(genre.id)}
+                      onChange={() => updateGenre(genre)}
+                    />
+                    {genre.name}
+                  </label>
+                </div>
               ))}
             </div>
           </div>
 
-          <button type="submit" className="register-button" onClick = {registerEmail}>
+          <button type="submit" className="register-button" onClick={registerEmail}>
             Create Account
           </button>
 
@@ -163,9 +173,9 @@ function RegisterView() {
             Already have an account?{" "}
             <span onClick={() => navigate("/Login")}>Sign In</span>
           </p>
-          <button onClick = {googleSignIn} className ='register-button' id ='google-register-button' type='button'>Google</button> 
-       </form>
-      
+          <button onClick={googleSignIn} className='register-button' id='google-register-button' type='button'>Google</button>
+        </form>
+
       </div>
     </>
   );

@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useUserContext } from '../contexts/UserContext';
-import {Map} from 'immutable'
+import { Map } from 'immutable';
 import './GenreView.css';
 
 function GenreView() {
@@ -20,8 +20,11 @@ function GenreView() {
       try {
         const response = await axios.get(url);
         setData(response.data);
-        setMovies(response.data.results);
-        console.log(response.data);
+        // Convert all IDs to strings when setting movies
+        setMovies(response.data.results.map(movie => ({
+          ...movie,
+          id: String(movie.id)
+        })));
       } catch (error) {
         console.error("Error fetching movies:", error);
       }
@@ -31,11 +34,11 @@ function GenreView() {
   }, [genreId, API_KEY, page]);
 
   const addToCart = (movie) => {
-    console.log(purchasedMovies);
-    if(!cart?.has(movie?.id)) {
-      if(!purchasedMovies?.has(movie?.id)) {
-        console.log("purchasedMovies", purchasedMovies);
-        const updatedCart = cart.set(movie.id, Map(movie));
+    const movieId = String(movie.id);
+
+    if (!cart.has(movieId)) {
+      if (!purchasedMovies.has(movieId)) {
+        const updatedCart = cart.set(movieId, Map(movie));
         setCart(updatedCart);
         localStorage.setItem(user.uid, JSON.stringify(updatedCart.toJS()));
         alert(`${movie.original_title} added to your cart!`);
@@ -77,7 +80,6 @@ function GenreView() {
               onClick={() => goToDetailView(movie)}
             />
             <button onClick={() => addToCart(movie)}>Add to Cart</button>
-
           </div>
         ))}
       </div>

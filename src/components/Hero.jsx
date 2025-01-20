@@ -5,9 +5,9 @@ import { useNavigate } from "react-router-dom";
 function Hero() {
   const { user } = useUserContext();
   const navigate = useNavigate();
-  console.log(user);
+  console.log(user?.displayName);
   return (
-    <div className = 'hero-container'>
+    <div className='hero-container'>
       <video autoPlay muted loop id="background-video">
         <source src="src\assets\background.mp4" type="video/mp4"></source>
         Your browser does not support the video tag.
@@ -29,7 +29,7 @@ function Hero() {
       <div className="offer">
         <h1>LIMITED OFFER</h1>
         <p>Sign up and get 110% off your first month</p>
-        <button onClick = {() => navigate("/Register")}>Learn more</button>
+        <button onClick={() => navigate("/Register")}>Learn more</button>
       </div>
     </div>
   );

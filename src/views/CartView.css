@@ -1,7 +1,6 @@
-/* Base page & header styles */
 h1 {
   color: #ffffff;
-  /* White text */
+
   text-align: center;
 }
 
@@ -10,7 +9,7 @@ p {
   text-align: center;
 }
 
-/* Cart header section */
+
 .header2 {
   background-color: rgba(0, 0, 0, 0.5);
   padding: 20px;
@@ -22,19 +21,19 @@ p {
   font-size: 1.1rem;
 }
 
-/* Main cart container */
+
 .cart-view {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
 
-/* Checkout button */
+
 .checkout-button {
   display: block;
   margin: 0 auto 40px;
   background-color: #e50914;
-  /* Netflix Red */
+
   border: none;
   padding: 12px 24px;
   color: #ffffff;
@@ -46,25 +45,25 @@ p {
 
 .checkout-button:hover {
   background-color: #ff4040;
-  /* Lighter red */
+
 }
 
-/* Cart items container */
+
 .cart-items {
   display: flex;
   flex-wrap: wrap;
-  /* Allows multiple rows */
+
   justify-content: center;
-  /* Centers items */
+
   gap: 20px;
-  /* Spacing between items */
+
 }
 
-/* Each item in the cart */
+
 .cart-item {
   width: 300px;
   background: #1c1c1c;
-  /* Slightly lighter black */
+
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
   transition: transform 0.2s;
@@ -76,25 +75,25 @@ p {
   transform: scale(1.05);
 }
 
-/* Poster image */
+
 .cart-item img {
   width: 100%;
   height: auto;
   border-bottom: 2px solid #e50914;
 }
 
-/* Movie title */
+
 .movie-title {
   font-size: 1.2rem;
   margin: 10px 0;
   color: #00aaff;
-  /* Bright blue */
+
 }
 
-/* Remove button */
+
 .cart-item button {
   background-color: #e50914;
-  /* Netflix Red */
+
   border: none;
   padding: 10px 20px;
   color: #ffffff;
@@ -107,13 +106,13 @@ p {
 
 .cart-item button:hover {
   background-color: #ff4040;
-  /* Lighter red */
+
 }
 
-/* Extra text when cart is empty */
+
 .extraText p {
   font-size: 1.2rem;
   color: #ff4040;
-  /* Contrasting message color */
+
   margin-top: 40px;
 }

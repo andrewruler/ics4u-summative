@@ -2,13 +2,22 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
-import { Map } from 'immutable';
+import { doc, updateDoc } from "firebase/firestore";
+import { firestore } from "../firebase";
+import { Map } from "immutable";
 import "./DetailView.css";
 
 function DetailView() {
   const [movie, setMovie] = useState({});
   const { movieId } = useParams();
-  const { user, cart, setCart, purchasedMovies } = useUserContext();
+
+  const {
+    user,
+    cart,
+    setCart,
+    purchasedMovies,
+    setPurchasedMovies,
+  } = useUserContext();
 
   useEffect(() => {
     async function getMovie() {
@@ -24,31 +33,49 @@ function DetailView() {
     getMovie();
   }, [movieId]);
 
-  const addToCart = () => {
-    console.log(purchasedMovies);
-    if (!cart?.has(movieId)) {
-      if (!purchasedMovies?.has(movieId)) {
-        console.log("purchasedMovies", purchasedMovies);
-        const updatedCart = cart.set(movieId, Map(movie));
-        setCart(updatedCart);
-        localStorage.setItem(user.uid, JSON.stringify(updatedCart.toJS()));
-        alert(`${movie.original_title} added to your cart!`);
-      } else {
-        alert(`You have already purchased ${movie.original_title}!`);
-      }
-    } else {
+  const addToCart = async () => {
+    if (!user) {
+      alert("Please log in first.");
+      return;
+    }
+
+    if (purchasedMovies.has(movieId)) {
+      alert(`You have already purchased ${movie.original_title}!`);
+      return;
+    }
+    if (cart.has(movieId)) {
       alert(`${movie.original_title} is already in your cart!`);
+      return;
+    }
+
+    try {
+      const userDocRef = doc(firestore, "users", user.uid);
+      await updateDoc(userDocRef, {
+        [`purchasedMovies.${movieId}`]: {
+          title: movie.original_title,
+        },
+      });
+
+      const updatedPurchased = purchasedMovies.set(movieId, {
+        title: movie.original_title,
+      });
+      setPurchasedMovies(updatedPurchased);
+
+      const updatedCart = cart.set(movieId, Map(movie));
+      setCart(updatedCart);
+      localStorage.setItem(user.uid, JSON.stringify(updatedCart.toJS()));
+
+      alert(`${movie.original_title} added to your cart & purchasedMovies updated!`);
+    } catch (error) {
+      console.error("Failed to update purchasedMovies in Firestore:", error);
+      alert("Could not complete purchase at this time. Please try again.");
     }
   };
-
 
   return (
     <>
       <div className="movie-detail">
-        <button
-          onClick={() => addToCart()}
-          className="buy-button"
-        >
+        <button onClick={addToCart} className="buy-button">
           Buy
         </button>
 

@@ -24,15 +24,15 @@ function RegisterView() {
 
   const firestore = getFirestore();
 
-   const saveGenres = async (firebaseUser) => {
-     genreList.forEach((genre) => {
+  const saveGenres = async (firebaseUser) => {
+    genreList.forEach((genre) => {
       const isSelected = selectedGenres.includes(genre.id);
       if (genre.selected !== isSelected) {
         updateGenre({ ...genre, selected: isSelected });
       }
     });
 
-     if (!firebaseUser?.uid) {
+    if (!firebaseUser?.uid) {
       console.error("No valid user UID found for saving genres.");
       return;
     }

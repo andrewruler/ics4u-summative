@@ -9,9 +9,11 @@ const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const [cart, setCart] = useState(Map());
-  const [userData, setUserData] = useState();
+
   const [purchasedMovies, setPurchasedMovies] = useState(Map());
+
   const [genreList, setGenreList] = useState([
     { name: "Action", id: 28, selected: false },
     { name: "Horror", id: 27, selected: false },
@@ -27,22 +29,35 @@ export const UserProvider = ({ children }) => {
     { name: "War", id: 10752, selected: false },
   ]);
 
+
   useEffect(() => {
     const fetchPurchasedMovies = async () => {
       if (!user) return;
       const docRef = doc(firestore, "users", user.uid);
       const docSnap = await getDoc(docRef);
+
       if (docSnap.exists()) {
         const data = docSnap.data();
         if (data.purchasedMovies) {
-          setPurchasedMovies(Map(data.purchasedMovies));
-          console.log("Fetched purchasedMovies:", data.purchasedMovies);
+
+          const stringKeyObject = Object.entries(data.purchasedMovies).reduce(
+            (acc, [key, val]) => {
+              acc[String(key)] = val;
+              return acc;
+            },
+            {}
+          );
+          setPurchasedMovies(Map(stringKeyObject));
+          console.log("Fetched purchasedMovies:", stringKeyObject);
+        } else {
+          setPurchasedMovies(Map());
         }
+      } else {
+        setPurchasedMovies(Map());
       }
     };
 
     const fetchGenres = async () => {
-      console.log("Fetching genres...", user);
       if (!user) return;
       const docRef = doc(firestore, "users", user.uid);
       const docSnap = await getDoc(docRef);
@@ -69,6 +84,7 @@ export const UserProvider = ({ children }) => {
     onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
+
         const sessionCart = localStorage.getItem(currentUser.uid);
         if (sessionCart) {
           try {
@@ -81,12 +97,10 @@ export const UserProvider = ({ children }) => {
         } else {
           setCart(Map());
         }
-
-        const docRef = doc(firestore, "users", currentUser.uid);
-        setUserData((await getDoc(docRef)).data());
       } else {
         setUser(null);
         setCart(Map());
+        setPurchasedMovies(Map());
       }
       setLoading(false);
     });
@@ -96,7 +110,7 @@ export const UserProvider = ({ children }) => {
     .filter((genre) => genre.selected)
     .map((genre) => genre.id);
 
- const updateGenre = async (genre) => {
+  const updateGenre = async (genre) => {
     setGenreList((prevList) => {
       const newList = prevList.map((item) =>
         item.id === genre.id ? { ...item, selected: !item.selected } : item

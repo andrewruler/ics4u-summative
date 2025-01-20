@@ -1,9 +1,11 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useUserContext } from '../contexts/UserContext';
-import { Map } from 'immutable';
-import './GenreView.css';
+import { useUserContext } from "../contexts/UserContext";
+import { doc, updateDoc } from "firebase/firestore";
+import { firestore } from "../firebase";
+import { Map } from "immutable";
+import "./GenreView.css";
 
 function GenreView() {
   const navigate = useNavigate();
@@ -11,7 +13,15 @@ function GenreView() {
   const [movies, setMovies] = useState([]);
   const [data, setData] = useState();
   const [page, setPage] = useState(1);
-  const { setCart, purchasedMovies, cart, user } = useUserContext();
+
+  const {
+    user,
+    purchasedMovies,
+    setPurchasedMovies,
+    cart,
+    setCart,
+  } = useUserContext();
+
   const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
   useEffect(() => {
@@ -20,10 +30,13 @@ function GenreView() {
       try {
         const response = await axios.get(url);
         setData(response.data);
-        setMovies(response.data.results.map(movie => ({
+
+        //
+        const stringMovies = response.data.results.map((movie) => ({
           ...movie,
-          id: String(movie.id)
-        })));
+          id: String(movie.id),
+        }));
+        setMovies(stringMovies);
       } catch (error) {
         console.error("Error fetching movies:", error);
       }
@@ -32,20 +45,54 @@ function GenreView() {
     getMoviesData();
   }, [genreId, API_KEY, page]);
 
-  const addToCart = (movie) => {
+  const addToCart = async (movie) => {
+    if (!user) {
+      alert("Please log in first.");
+      return;
+    }
+
     const movieId = String(movie.id);
 
-    if (!cart.has(movieId)) {
-      if (!purchasedMovies.has(movieId)) {
-        const updatedCart = cart.set(movieId, Map(movie));
-        setCart(updatedCart);
-        localStorage.setItem(user.uid, JSON.stringify(updatedCart.toJS()));
-        alert(`${movie.original_title} added to your cart!`);
-      } else {
-        alert(`You have already purchased ${movie.original_title}!`);
-      }
-    } else {
-      alert(`${movie.original_title} is already in your cart!`);
+    
+    if (purchasedMovies.has(movieId)) {
+      alert(`You have already purchased "${movie.title}"!`);
+      return;
+    }
+
+    
+    if (cart.has(movieId)) {
+      alert(`"${movie.title}" is already in your cart!`);
+      return;
+    }
+
+    try {
+      
+      const userDocRef = doc(firestore, "users", user.uid);
+      await updateDoc(userDocRef, {
+        [`purchasedMovies.${movieId}`]: {
+          posterPath: movie.poster_path,
+          title: movie.title,
+        },
+      });
+
+      
+      const updatedPurchased = purchasedMovies.set(movieId, {
+        posterPath: movie.poster_path,
+        title: movie.title,
+      });
+      setPurchasedMovies(updatedPurchased);
+
+      
+      const updatedCart = cart.set(movieId, Map(movie));
+      setCart(updatedCart);
+
+      
+      localStorage.setItem(user.uid, JSON.stringify(updatedCart.toJS()));
+
+      alert(`"${movie.title}" added to your cart!`);
+    } catch (error) {
+      console.error("Failed to update purchasedMovies in Firestore:", error);
+      alert("Failed to add movie to cart. Please try again.");
     }
   };
 
@@ -68,8 +115,13 @@ function GenreView() {
           Back
         </button>
         <button onClick={goToNextPage}>Next</button>
-        <p>Page {page} out of {data?.total_pages}</p>
+        {data && (
+          <p>
+            Page {page} out of {data.total_pages}
+          </p>
+        )}
       </div>
+
       <div className="movies-grid">
         {movies.map((movie) => (
           <div key={movie.id} className="movie-card">
@@ -78,7 +130,14 @@ function GenreView() {
               alt={movie.title}
               onClick={() => goToDetailView(movie)}
             />
-            <button onClick={() => addToCart(movie)}>Add to Cart</button>
+         
+            {purchasedMovies.has(movie.id) ? (
+              <button className="purchased-button" disabled>
+                Purchased
+              </button>
+            ) : (
+              <button onClick={() => addToCart(movie)}>Add to Cart</button>
+            )}
           </div>
         ))}
       </div>

@@ -3,7 +3,7 @@ nav {
   transition: background-color 0.3s ease, transform 0.1s ease;
   padding: var(--spacing-md);
   display: flex;
-  justify-content: center;
+  justify-content: space-between; 
   align-items: center;
   gap: 1em;
   animation: slideDown 0.8s ease-in-out;
@@ -20,30 +20,35 @@ nav ul {
   margin: 0;
   padding: 0;
   display: flex;
-  justify-content: center;
   gap: var(--spacing-md);
 }
 
 nav .logo {
-  margin: 1.5em;
+  margin-right: auto; 
 }
 
 nav ul li {
-  display: flex;
-  justify-content: center;
+  display: inline-flex;
   font-weight: bold;
   font-size: 1.25em;
-  position: relative;
+  padding: 0.5em 1em;
+  border-radius: 0.5em;
   background: rgba(0, 0, 0, 0.1);
-  padding: 25% 15%;
-  margin: 0 0.2em;
-  border-radius: 1em;
-  width: 3em;
-  height: 1em;
   transition: all 0.3s ease;
   align-items: center;
-  align-content: center;
+  justify-content: center;
   text-align: center;
+}
+
+nav ul li:hover {
+  background: rgba(191, 236, 243, 0.3);
+}
+
+nav ul li a {
+  white-space: nowrap;
+  color: var(--text-light);
+  text-decoration: none;
+  position: relative;
 }
 
 nav ul li a::after {
@@ -55,14 +60,6 @@ nav ul li a::after {
   left: 0;
   bottom: -5px;
   transition: width 0.3s ease;
-  transform: scale(1.1);
-}
-
-nav ul li a {
-  white-space: nowrap;
-  color: var(--text-light);
-  text-decoration: none;
-  position: relative;
 }
 
 nav ul li a:hover::after {
@@ -78,5 +75,10 @@ nav ul li a:hover::after {
   nav ul {
     flex-direction: column;
     gap: var(--spacing-sm);
+  }
+
+  nav ul li {
+    padding: 0.5em 1em; 
+    width: auto; 
   }
 }
